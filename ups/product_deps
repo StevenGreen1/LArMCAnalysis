@@ -6,7 +6,7 @@ defaultqual e14
 fcldir product_dir job
 #
 product         version
-larsim		v06_33_01
+larsim		v06_34_00
 gcc		v6_3_0
 
 only_for_build  cetbuildtools   v5_14_00
