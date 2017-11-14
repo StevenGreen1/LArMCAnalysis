@@ -11,6 +11,7 @@ services :
 {
 #  scheduler:               { defaultExceptions: false }    # Make all uncaught exceptions fatal.	
   TFileService: { fileName: "MCAnalysis.root" }
+  BackTracker: @local::dunefd_backtracker
 }
 
 outputs: {
