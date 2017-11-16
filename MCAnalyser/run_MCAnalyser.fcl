@@ -1,4 +1,4 @@
-#include "services_sbnd.fcl"
+#include "services_dune.fcl"
 
 process_name : MCAnalysis      #The process name must NOT contain any underscores
 
@@ -11,6 +11,7 @@ services :
 {
 #  scheduler:               { defaultExceptions: false }    # Make all uncaught exceptions fatal.	
   TFileService: { fileName: "MCAnalysis.root" }
+  BackTracker: @local::dunefd_backtracker
 }
 
 outputs: {
