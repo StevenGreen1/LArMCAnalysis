@@ -70,6 +70,15 @@ public:
     void analyze(art::Event const & event);
 
 private:
+    /**
+     *  @brief Is the point (x,y,z) in the LArTPC
+     *
+     *  @param x coordinate
+     *  @param y coordinate
+     *  @param z coordinate
+     */ 
+    bool IsInTPC(double x, double y, double z);
+
 //    TFile           *m_pTFile;          ///< TFile for saving event information 
     TTree           *m_pTTree;          ///< TTree for saving event information
 
@@ -77,6 +86,7 @@ private:
 
     bool             m_isPrimary;       ///< Does the MCParticle have any parents
     bool             m_isBeam;          ///< Is the MCParticle from the beam, or is it a cosmic ray
+    bool             m_entersTPC;       ///< Does the MCParticle enter the TPC
     int              m_pdg;             ///< PDG code for the MCParticle
     int              m_trackID;         ///< Geant4 track ID for the MCParticle
     int              m_parent;          ///< TrackID of parent MCParticle
@@ -99,6 +109,19 @@ private:
     double           m_endX;            ///< MCParticle x position at end
     double           m_endY;            ///< MCParticle y position at end
     double           m_endZ;            ///< MCParticle z position at end
+
+    double           m_centreX;         ///< ProtoDUNE x coordinate centre
+    double           m_centreY;         ///< ProtoDUNE y coordinate centre
+    double           m_centreZ;         ///< ProtoDUNE z coordinate centre
+    double           m_widthX;          ///< ProtoDUNE x coordinate width
+    double           m_widthY;          ///< ProtoDUNE y coordinate width
+    double           m_widthZ;          ///< ProtoDUNE z coordinate width
+    double           m_m_lowXTPC;            ///< Lowest x coordinate extent of ProtoDUNE TPC 
+    double           m_m_highXTPC;           ///< Highest x coordinate extent of ProtoDUNE TPC 
+    double           m_m_lowYTPC;            ///< Lowest y coordinate extent of ProtoDUNE TPC 
+    double           m_m_highYTPC;           ///< Highest y coordinate extent of ProtoDUNE TPC 
+    double           m_m_lowZTPC;            ///< Lowest z coordinate extent of ProtoDUNE TPC 
+    double           m_m_highZTPC;           ///< Highest z coordinate extent of ProtoDUNE TPC 
 };
 
 //------------------------------------------------------------------------------------------------------------------------------------------
@@ -119,6 +142,19 @@ MCAnalysis::~MCAnalysis()
 
 void MCAnalysis::reconfigure(fhicl::ParameterSet const & p)
 {
+    m_centreX = p.get<double>("ProtoDUNE_CentreX",0.0);
+    m_centreY = p.get<double>("ProtoDUNE_CentreY",303.749359131);
+    m_centreZ = p.get<double>("ProtoDUNE_CentreZ",347.396240234);
+    m_widthX = p.get<double>("ProtoDUNE_WidthX",759.439697266);
+    m_widthY = p.get<double>("ProtoDUNE_WidthY",599.88873291);
+    m_widthZ = p.get<double>("ProtoDUNE_WidthZ",695.780029297);
+
+    m_lowXTPC = m_centreX - 0.5 * m_widthX;
+    m_highXTPC = m_centreX + 0.5 * m_widthX;
+    m_lowYTPC = m_centreY - 0.5 * m_widthY;
+    m_highYTPC = m_centreY + 0.5 * m_widthY;
+    m_lowZTPC = m_centreZ - 0.5 * m_widthZ;
+    m_highZTPC = m_centreZ + 0.5 * m_widthZ;
 }
 
 //------------------------------------------------------------------------------------------------------------------------------------------
@@ -132,6 +168,7 @@ void MCAnalysis::beginJob()
     m_pTTree->Branch("eventNumber", &m_eventNumber, "eventNumber/I");
     m_pTTree->Branch("isPrimary", &m_isPrimary, "isPrimary/O");
     m_pTTree->Branch("isBeam", &m_isBeam, "isBeam/O");
+    m_pTTree->Branch("entersTPC", &m_entersTPC, "entersTPC/O");
     m_pTTree->Branch("pdg", &m_pdg, "pdg/I");
     m_pTTree->Branch("trackID", &m_trackID, "trackID/I");
     m_pTTree->Branch("parent", &m_parent, "parent/I");
@@ -173,6 +210,7 @@ void MCAnalysis::reset()
     m_eventNumber = -999;
     m_isPrimary = false;
     m_isBeam = false;
+    m_entersTPC = false;
     m_pdg = 0;
     m_trackID = -999;
     m_parent = -999;
@@ -247,7 +285,22 @@ void MCAnalysis::analyze(art::Event const &event)
         m_endT = mcParticle->EndT();
         m_endX = mcParticle->EndX();
         m_endY = mcParticle->EndY();
-        m_endZ = static_cast<double>(mcParticle->EndZ());
+        m_endZ = mcParticle->EndZ();
+
+        for (int step = 0; step < mcParticle->NumberTrajectoryPoints(); step++)
+        {
+            double stepX(mcParticle->GetVx(step);
+            double stepY(mcParticle->GetVy(step);
+            double stepZ(mcParticle->GetVz(step);
+
+            bool inTPC(this->IsInTPC(stepX1,stepY1,stepZ1));
+
+            if (inTPC)
+            {
+                m_entersTPC = true;
+                break;
+            }
+        }
 
         m_pTTree->Fill();
     }
@@ -361,6 +414,16 @@ std::cout << "GEANT4" << std::endl;
 
     std::cout << "Found a total of " << nMCParticles << " MC Particles from the " << producerName << std::endl;
 */
+}
+
+//------------------------------------------------------------------------------------------------------------------------------------------
+
+bool MCAnalysis::IsInTPC(double x, double y, double z)
+{
+    if (m_lowXTPC < x && x < m_highXTPC && m_lowYTPC < y && y < m_highYTPC && m_lowZTPC < z && z << m_highZTPC)
+        return true;
+    else
+        return false;
 }
 
 DEFINE_ART_MODULE(MCAnalysis)
