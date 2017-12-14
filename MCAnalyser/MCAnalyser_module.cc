@@ -116,12 +116,12 @@ private:
     double           m_widthX;          ///< ProtoDUNE x coordinate width
     double           m_widthY;          ///< ProtoDUNE y coordinate width
     double           m_widthZ;          ///< ProtoDUNE z coordinate width
-    double           m_m_lowXTPC;            ///< Lowest x coordinate extent of ProtoDUNE TPC 
-    double           m_m_highXTPC;           ///< Highest x coordinate extent of ProtoDUNE TPC 
-    double           m_m_lowYTPC;            ///< Lowest y coordinate extent of ProtoDUNE TPC 
-    double           m_m_highYTPC;           ///< Highest y coordinate extent of ProtoDUNE TPC 
-    double           m_m_lowZTPC;            ///< Lowest z coordinate extent of ProtoDUNE TPC 
-    double           m_m_highZTPC;           ///< Highest z coordinate extent of ProtoDUNE TPC 
+    double           m_lowXTPC;         ///< Lowest x coordinate extent of ProtoDUNE TPC 
+    double           m_highXTPC;        ///< Highest x coordinate extent of ProtoDUNE TPC 
+    double           m_lowYTPC;         ///< Lowest y coordinate extent of ProtoDUNE TPC 
+    double           m_highYTPC;        ///< Highest y coordinate extent of ProtoDUNE TPC 
+    double           m_lowZTPC;         ///< Lowest z coordinate extent of ProtoDUNE TPC 
+    double           m_highZTPC;        ///< Highest z coordinate extent of ProtoDUNE TPC 
 };
 
 //------------------------------------------------------------------------------------------------------------------------------------------
@@ -287,13 +287,13 @@ void MCAnalysis::analyze(art::Event const &event)
         m_endY = mcParticle->EndY();
         m_endZ = mcParticle->EndZ();
 
-        for (int step = 0; step < mcParticle->NumberTrajectoryPoints(); step++)
+        for (unsigned int step = 0; step < mcParticle->NumberTrajectoryPoints(); step++)
         {
-            double stepX(mcParticle->GetVx(step);
-            double stepY(mcParticle->GetVy(step);
-            double stepZ(mcParticle->GetVz(step);
+            double stepX(mcParticle->Vx(step));
+            double stepY(mcParticle->Vy(step));
+            double stepZ(mcParticle->Vz(step));
 
-            bool inTPC(this->IsInTPC(stepX1,stepY1,stepZ1));
+            bool inTPC(this->IsInTPC(stepX, stepY, stepZ));
 
             if (inTPC)
             {
@@ -420,7 +420,7 @@ std::cout << "GEANT4" << std::endl;
 
 bool MCAnalysis::IsInTPC(double x, double y, double z)
 {
-    if (m_lowXTPC < x && x < m_highXTPC && m_lowYTPC < y && y < m_highYTPC && m_lowZTPC < z && z << m_highZTPC)
+    if (m_lowXTPC < x && x < m_highXTPC && m_lowYTPC < y && y < m_highYTPC && m_lowZTPC < z && z < m_highZTPC)
         return true;
     else
         return false;
