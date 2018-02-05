@@ -1,23 +1,22 @@
 # The parent line must be the first non-comment line in the file
 # This line defines the product name and version
 parent mytestanalysis v00_01_00
-defaultqual e14
+defaultqual e15
 #
 fcldir product_dir job
 #
 product         version
-larsim		v06_34_00
-gcc		v6_3_0
+larsim		v06_40_00
+#gcc		v6_4_0
 
-only_for_build  cetbuildtools   v5_14_00
+cetbuildtools   v6_01_01        -       only_for_build
 end_product_list
 
-  
-# e9  - with gcc 4.9.3 and -std=c++14
-qualifier	larsim		gcc	notes
-e14:debug	e14:debug	-nq-
-e14:opt		e14:opt		-nq-
-e14:prof	e14:prof		-nq-
+# e15  - with gcc 6.4.0 and -std=c++14
+qualifier	larsim		notes
+e15:debug	e15:debug	
+e15:opt		e15:opt		
+e15:prof	e15:prof	
 end_qualifier_list
 
 # Preserve tabs and formatting in emacs and vi / vim:

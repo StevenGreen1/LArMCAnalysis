@@ -17,7 +17,7 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "nusimdata/SimulationBase/MCTruth.h"
-#include "larsim/MCCheater/BackTracker.h"
+#include "larsim/MCCheater/ParticleInventoryService.h"
 
 #include "TTree.h"                                       
 #include "TFile.h"                                                                                                             
@@ -239,7 +239,7 @@ void MCAnalysis::reset()
 
 void MCAnalysis::analyze(art::Event const &event)
 {
-    art::ServiceHandle<cheat::BackTracker> backTracker;
+    art::ServiceHandle<cheat::ParticleInventoryService> particleInventoryService;
     const std::string producerName("largeant");
     art::Handle< std::vector<simb::MCParticle> > mcParticles;
     event.getByLabel(producerName, mcParticles);
@@ -254,12 +254,14 @@ void MCAnalysis::analyze(art::Event const &event)
         m_trackID = mcParticle->TrackId();
         m_parent = mcParticle->Mother();
 
+        const simb::Origin_t origin(particleInventoryService->TrackIdToMCTruth(m_trackID).Origin());
+/*
         if ("primary" == backTracker->TrackIDToParticle(m_trackID)->Process())
         {
             m_isPrimary = true;
         }
-
-        if (simb::kSingleParticle == backTracker->TrackIDToMCTruth(m_trackID)->Origin())
+*/
+        if (simb::kSingleParticle == origin)
         {
             m_isBeam = true;
         }
