@@ -17,7 +17,7 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "nusimdata/SimulationBase/MCTruth.h"
-#include "larsim/MCCheater/BackTracker.h"
+#include "larsim/MCCheater/ParticleInventoryService.h"
 
 #include "TTree.h"                                       
 #include "TFile.h"                                                                                                             
@@ -239,7 +239,7 @@ void MCAnalysis::reset()
 
 void MCAnalysis::analyze(art::Event const &event)
 {
-    art::ServiceHandle<cheat::BackTracker> backTracker;
+    art::ServiceHandle<cheat::ParticleInventoryService> particleInventoryService;
     const std::string producerName("largeant");
     art::Handle< std::vector<simb::MCParticle> > mcParticles;
     event.getByLabel(producerName, mcParticles);
@@ -254,12 +254,14 @@ void MCAnalysis::analyze(art::Event const &event)
         m_trackID = mcParticle->TrackId();
         m_parent = mcParticle->Mother();
 
+        const simb::Origin_t origin(particleInventoryService->TrackIdToMCTruth(m_trackID).Origin());
+/*
         if ("primary" == backTracker->TrackIDToParticle(m_trackID)->Process())
         {
             m_isPrimary = true;
         }
-
-        if (simb::kSingleParticle == backTracker->TrackIDToMCTruth(m_trackID)->Origin())
+*/
+        if (simb::kSingleParticle == origin)
         {
             m_isBeam = true;
         }
@@ -305,12 +307,11 @@ void MCAnalysis::analyze(art::Event const &event)
         m_pTTree->Fill();
     }
 
-/*
     // Get MC Truth
 std::cout << "GENERATOR" << std::endl;
     const std::string producerNameGen("generator");
     art::Handle< std::vector<simb::MCTruth> > mcTruth;
-    e.getByLabel(producerNameGen, mcTruth);
+    event.getByLabel(producerNameGen, mcTruth);
     std::cout << "mcTruth->size() = " << mcTruth->size() << std::endl;
     const art::Ptr<simb::MCTruth> pMCTruth(mcTruth, 0);
     const int nMCTruthParticles(pMCTruth->NParticles());
@@ -341,13 +342,16 @@ std::cout << "GENERATOR" << std::endl;
         }
         std::cout << " ] | " << mcParticle.Mother();
         std::cout << std::endl;
+        std::cout << "EndProcess code " << mcParticle.EndProcess() << std::endl;
     }
+
+//    return;
 
 std::cout << "COSMICGENERATOR" << std::endl;
 
     const std::string producerNameCRGen("cosmicgenerator");
     art::Handle< std::vector<simb::MCTruth> > mcCRTruth;
-    e.getByLabel(producerNameCRGen, mcCRTruth);
+    event.getByLabel(producerNameCRGen, mcCRTruth);
     std::cout << "mcCRTruth->size() = " << mcCRTruth->size() << std::endl;
     const art::Ptr<simb::MCTruth> pMCCRTruth(mcCRTruth, 0);
     const int nMCCRTruthParticles(pMCCRTruth->NParticles());
@@ -383,9 +387,9 @@ std::cout << "COSMICGENERATOR" << std::endl;
 std::cout << "GEANT4" << std::endl;
 
     // Get MC Particles
-    const std::string producerName("largeant");
-    art::Handle< std::vector<simb::MCParticle> > mcParticles;
-    e.getByLabel(producerName, mcParticles);
+//    const std::string producerName("largeant");
+//    art::Handle< std::vector<simb::MCParticle> > mcParticles;
+//    event.getByLabel(producerName, mcParticles);
     const int nMCParticles(mcParticles->size());
 
     std::cout << "TrackId | PDG | (E,  Px, Py, Pz) | Start(t,x,y,z) | End(t,x,y,z) | NumberTrajectoryPoints | nDaughters [Daughter TrackIDs] | Mother" << std::endl;
@@ -410,10 +414,10 @@ std::cout << "GEANT4" << std::endl;
         }
         std::cout << " ] | " << mcParticle->Mother();
         std::cout << std::endl;
+        std::cout << "EndProcess code " << mcParticle->EndProcess() << std::endl;
     }
 
     std::cout << "Found a total of " << nMCParticles << " MC Particles from the " << producerName << std::endl;
-*/
 }
 
 //------------------------------------------------------------------------------------------------------------------------------------------

@@ -19,7 +19,7 @@ art_make(
                         ${ROOT_BASIC_LIB_LIST}
 			${SIMULATIONBASE}
                         nusimdata_SimulationBase
-                        larsim_MCCheater_BackTracker_service
+                        larsim_MCCheater_ParticleInventoryService_service
 )							   
 
 install_headers()

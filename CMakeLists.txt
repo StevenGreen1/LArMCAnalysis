@@ -35,7 +35,7 @@ cet_set_compiler_flags(DIAGS CAUTIOUS
   WERROR
   NO_UNDEFINED
   ALLOW_DEPRECATIONS
-  EXTRA_FLAGS -pedantic -Wno-unused-local-typedefs
+  EXTRA_FLAGS -pedantic -Wno-unused-local-typedefs -std=c++14
 )
 
 cet_report_compiler_flags()
