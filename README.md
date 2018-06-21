@@ -1,1 +1,9 @@
-Skeleton for art analyzer, for the 2nd UK LArSoft Workshop, October 2017, LArSoft version v06_53_00
+Commands:
+Build local larsoft as normal 
+cd srcs
+git clone https://github.com/StevenGreen1/LArMCAnalysis.git
+mrb uc
+cd $MRB_BUILDDIR
+mrbsetenv
+mrb i -j4
+mrbslp
